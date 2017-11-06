@@ -35,12 +35,10 @@ public class FeistelNetTask extends RecursiveAction {
                 bitSet = pBox(bitSet);
                 array[i] = right << 32 | bitSet.toLongArray()[0] ^ left;
             }
-        }
-        else {
+        } else {
             int middle = (end + start) / 2;
             invokeAll(new FeistelNetTask(array, start, middle, key), new FeistelNetTask(array, middle, end, key));
         }
-
     }
 
     private BitSet extendBlock(long block) {
@@ -53,20 +51,12 @@ public class FeistelNetTask extends RecursiveAction {
     }
 
     private BitSet sBox(BitSet bitSet) {
-        BitSet[] vectors = new BitSet[8];
-        for (int i = 7, k = 0; i >=0; i--) {
-            vectors[i] = new BitSet(6);
-            for (int j = 0; j < 6; j++, k++) {
-                vectors[i].set(j, bitSet.get(k));
-            }
-        }
         long result = 0;
-        for (int i = 0; i < 8; i++) {
+        for (int i= 0, k = 47; i < 8 ; i++, k -= 6) {
             result <<= 4;
-            BitSet set = vectors[i];
-            int m = Integer.parseInt((set.get(5)? "1" : "0")  + (set.get(0) ? "1" : "0"), 2);
-            int l =  Integer.parseInt((set.get(4)? "1" : "0")  + (set.get(3) ? "1" : "0") +
-                    (set.get(2)? "1" : "0") + (set.get(1)? "1" : "0"), 2 );
+            int m = (bitSet.get(k - 5)? 0b1 : 0) | (bitSet.get(k) ? 0b10 : 0);
+            int l = (bitSet.get(k - 4)? 0b1 : 0)  | (bitSet.get(k - 3) ? 0b10 : 0) +
+                    (bitSet.get(k - 2)? 0b100 : 0) + (bitSet.get(k - 1)? 0b1000 : 0);
             int num = PermutationTables.sBoxes[i][l][m];
             result |= num;
         }

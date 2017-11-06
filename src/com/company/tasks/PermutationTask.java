@@ -44,8 +44,6 @@ public class PermutationTask extends RecursiveAction {
     }
 
     private long finPermutation(long block) {
-        long left = block << 32;
-        long righ = block >>> 32;
         block = block << 32 | block >>> 32;
         BitSet bitSet = BitSet.valueOf(new long[]{block});
         BitSet permuted = new BitSet(64);

@@ -40,7 +40,7 @@ public class DESTests {
         System.out.println(data.length/8);
         des.encrypt(dataPath, key);
         des.decrypt(encryptedPath, key);
-        byte[] result =Files.readAllBytes(resultPath);
+//        byte[] result =Files.readAllBytes(resultPath);
         //When data length % 8 != 0 zero bytes added to the end of file, so assert test doesn't work
         //but output is correct
         //check decrypted.txt file instead

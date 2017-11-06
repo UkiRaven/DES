@@ -8,12 +8,17 @@ import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.ForkJoinPool;
 
 public class DES {
+    private static final Path ENCRYPTED_PATH = Paths.get("encrypted.txt");
+    private static final Path ENCRYPTED_HEX_PATH = Paths.get("encrypted_hex.txt");
+    private static final Path DECRYPTED_PATH = Paths.get("decrypted.txt");
+    private static final Path DECRYPTED_HEX_PATH = Paths.get("decrypted_hex.txt");
 
     private ForkJoinPool fjp = ForkJoinPool.commonPool();
 
@@ -42,6 +47,19 @@ public class DES {
         return ArrayUtils.uniteBits(blocks);
     }
 
+    private void writeResult(byte[] result, Path path) throws IOException {
+        Files.deleteIfExists(path);
+        Files.createFile(path);
+        Files.write(path, result);
+    }
+    private void writeHexResult(byte[] result, Path path) throws IOException {
+        String res = ArrayUtils.byteArrayToHexString(result);
+        String hexOut = path.toString();
+        BufferedWriter writer = new BufferedWriter(new FileWriter(hexOut));
+        writer.write(res);
+        writer.close();
+    }
+
     public void encrypt(Path filePath, long key) throws IOException {
         try {
             byte[] data = Files.readAllBytes(filePath);
@@ -49,16 +67,8 @@ public class DES {
             byte[] result = code(data, key, false);
             long after = System.currentTimeMillis();
             System.out.println("encryption time: " + (after-before) + "ms");
-            Path encryptedFilePath = Paths.get("encrypted.txt");
-            Files.deleteIfExists(encryptedFilePath);
-            Files.createFile(encryptedFilePath);
-            Files.write(encryptedFilePath, result);
-            //Writing hex representation
-            String res = ArrayUtils.byteArrayToHexString(result);
-            String hexOut = "encrypted_hex.txt";
-            BufferedWriter writer = new BufferedWriter( new FileWriter(hexOut));
-            writer.write(res);
-            writer.close();
+            writeResult(result, ENCRYPTED_PATH);
+            writeHexResult(result, ENCRYPTED_HEX_PATH);
         } catch (FileNotFoundException e) {
             System.out.println("File not found");
         }
@@ -71,22 +81,14 @@ public class DES {
             byte[] result = code(data, key, true);
             long after = System.currentTimeMillis();
             System.out.println("decryption time: " + (after-before) + "ms");
-            Path decryptedFilePath = Paths.get("decrypted.txt");
-            Files.deleteIfExists(decryptedFilePath);
-            Files.createFile(decryptedFilePath);
-            Files.write(decryptedFilePath, result);
-            //Writing hex representation
-            String res = ArrayUtils.byteArrayToHexString(result);
-            String hexOut = "decrypted_hex.txt";
-            BufferedWriter writer = new BufferedWriter( new FileWriter(hexOut));
-            writer.write(res);
-            writer.close();
+            writeResult(result, DECRYPTED_PATH);
+            writeHexResult(result, DECRYPTED_HEX_PATH);
         } catch (FileNotFoundException e) {
             System.out.println("File not found");
         }
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         if (args.length == 3) {
             String mode = args[0];
             Path path = Paths.get(args[1]);
@@ -103,5 +105,6 @@ public class DES {
             System.out.println("Invalid arguments");
         }
     }
+
 
 }
