@@ -52,4 +52,6 @@ public class PermutationTask extends RecursiveAction {
         }
         return permuted.toLongArray()[0];
     }
+
+
 }

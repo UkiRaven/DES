@@ -17,10 +17,10 @@ public class FeistelNetTests {
     private Class<FeistelNetTask> clazz = FeistelNetTask.class;
     private FeistelNetTask task;
     private long[] data;
-    private long roundKey = 0x36146478E1E1L;
 
     public FeistelNetTests() {
         data = new long[]{0xff8074fd00ff309aL};
+        long roundKey = 0x36146478E1E1L;
         task = new FeistelNetTask(data, 0, data.length, roundKey);
     }
     @Test

@@ -37,9 +37,16 @@ public class DESTests {
         Path resultPath = Paths.get("decrypted.txt");
         long key = 0x0E329232EA6D0D73L;
         byte[] data = Files.readAllBytes(dataPath);
+        byte[] enc = Files.readAllBytes(encryptedPath);
         System.out.println(data.length/8);
-        des.encrypt(dataPath, key);
-        des.decrypt(encryptedPath, key);
+        long before = System.currentTimeMillis();
+        des.encrypt(data, key);
+        long after = System.currentTimeMillis();
+        System.out.println("encryption time: " + (after - before) + "ms");
+        before = System.currentTimeMillis();
+        des.decrypt(enc, key);
+        after = System.currentTimeMillis();
+        System.out.println("decryption time: " + (after - before) + "ms");
 //        byte[] result =Files.readAllBytes(resultPath);
         //When data length % 8 != 0 zero bytes added to the end of file, so assert test doesn't work
         //but output is correct
