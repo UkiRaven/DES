@@ -1,10 +1,8 @@
 package com.company;
 
-import com.company.constants.PermutationTables;
 import com.company.tasks.FeistelNetTask;
 import com.company.tasks.PermutationTask;
 import com.company.utils.ArrayUtils;
-import com.company.utils.CyclicShifter;
 
 import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
@@ -13,7 +11,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.BitSet;
 import java.util.concurrent.ForkJoinPool;
 
 public class DES {
@@ -28,47 +25,6 @@ public class DES {
         fjp.invoke(new PermutationTask(blocks, 0, blocks.length, true));
     }
 
-    private int getC(long key) {
-        BitSet bitSet = BitSet.valueOf(new long[]{key});
-        BitSet c = new BitSet(28);
-        for (int i = 0, k = 27; i < 28 ; i++, k--) {
-            c.set(k, bitSet.get(64 - PermutationTables.keyPermutation[i]));
-        }
-        return (int) c.toLongArray()[0];
-    }
-
-    private int getD(long key) {
-        BitSet bitSet = BitSet.valueOf(new long[]{key});
-        BitSet d = new BitSet(28);
-        for (int i = 28, k = 27; i < 56 ; i++, k--) {
-            d.set(k, bitSet.get(64-PermutationTables.keyPermutation[i]));
-        }
-        return (int) d.toLongArray()[0];
-    }
-
-    private int shift(int cd, int round, boolean decode) {
-        if (!decode) {
-            cd = CyclicShifter.shiftLeft(cd, PermutationTables.roundShift[round]);
-        }
-        else {
-            cd = CyclicShifter.shiftRight(cd, PermutationTables.roundShiftInverse[round]);
-        }
-        return cd;
-    }
-
-    private long narrowKey(long key) {
-        BitSet keySet = BitSet.valueOf(new long[] {key});
-        BitSet narrowed = new BitSet(48);
-        for (int i = 0, k = 47; i < 48; i++, k--) {
-            narrowed.set(k, keySet.get(56-PermutationTables.narrowKey[i]));
-        }
-        return narrowed.toLongArray()[0];
-    }
-
-    private long getRoundKey(int c, int d) {
-        return narrowKey(((long)c << 28) | d);
-    }
-
     private void oneRound(long[] array, long key) {
         fjp.invoke(new FeistelNetTask(array,0, array.length, key));
     }
@@ -77,12 +33,9 @@ public class DES {
         byteDate = ArrayUtils.extendSize(byteDate);
         long[] blocks = ArrayUtils.separateBitsToLong(byteDate);
         initPermutation(blocks);
-        int c = getC(key);
-        int d = getD(key);
+        RoundKeyGenerator keyGenerator = new RoundKeyGenerator(key);
         for (int i = 0; i < 16; i++) {
-            c = shift(c, i, decode);
-            d = shift(d, i, decode);
-            long roundKey = getRoundKey(c,d);
+            long roundKey = keyGenerator.getRoundKey(i, decode);
             oneRound(blocks, roundKey);
         }
         finPermutation(blocks);
