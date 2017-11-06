@@ -1,4 +1,4 @@
-package com.company;
+package com.company.tasks;
 
 import com.company.constants.PermutationTables;
 
@@ -8,13 +8,14 @@ import java.util.concurrent.RecursiveAction;
 /**
  * Created by lastc on 06.11.2017.
  */
-public class Permutation extends RecursiveAction {
+public class PermutationTask extends RecursiveAction {
+
     private int threshold = 1000;
     private long[] array;
     private int start,end;
     private boolean isFinal;
 
-    public Permutation(long[] array, int start, int end, boolean isFinal) {
+    public PermutationTask(long[] array, int start, int end, boolean isFinal) {
         this.array = array;
         this.start = start;
         this.end = end;
@@ -29,7 +30,7 @@ public class Permutation extends RecursiveAction {
             }
         } else {
             int mid = (end + start) / 2;
-            invokeAll(new Permutation(array, start, mid, isFinal), new Permutation(array, mid, end, isFinal));
+            invokeAll(new PermutationTask(array, start, mid, isFinal), new PermutationTask(array, mid, end, isFinal));
         }
     }
 

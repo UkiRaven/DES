@@ -1,4 +1,4 @@
-package com.company;
+package com.company.tasks;
 
 import com.company.constants.PermutationTables;
 
@@ -8,14 +8,14 @@ import java.util.concurrent.RecursiveAction;
 /**
  * Created by lastc on 06.11.2017.
  */
-public class FeistelNet extends RecursiveAction {
+public class FeistelNetTask extends RecursiveAction {
 
     private long[] array;
     private long key;
     private final int threshold = 1000;
     private int start, end;
 
-    public FeistelNet(long[] array, int start, int end, long key) {
+    public FeistelNetTask(long[] array, int start, int end, long key) {
         this.start = start;
         this.end = end;
         this.array = array;
@@ -38,7 +38,7 @@ public class FeistelNet extends RecursiveAction {
         }
         else {
             int middle = (end + start) / 2;
-            invokeAll(new FeistelNet(array, start, middle, key), new FeistelNet(array, middle, end, key));
+            invokeAll(new FeistelNetTask(array, start, middle, key), new FeistelNetTask(array, middle, end, key));
         }
 
     }
